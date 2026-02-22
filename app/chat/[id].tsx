@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   },
   messagesContent: {
     padding: spacing.md,
-    paddingBottom: spacing.sm,
+    paddingBottom: spacing.xl * 2,
   },
   messageBubble: {
     maxWidth: isTablet ? '70%' : '80%',
