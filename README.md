@@ -1,4 +1,4 @@
-# Natively App
+# Moving Abroad – Lifestyle Preview
 
 This app was built using [Natively.dev](https://natively.dev) - a platform for creating mobile apps.
 

@@ -1,6 +1,5 @@
 // Global error logging for runtime errors
 // Captures console.log/warn/error and sends to Natively server for AI debugging
-// NOTE: See utils/api.ts for the backend API client
 
 // Declare __DEV__ global (React Native global for development mode detection)
 declare const __DEV__: boolean;
