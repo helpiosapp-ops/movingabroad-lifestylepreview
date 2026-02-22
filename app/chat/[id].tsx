@@ -14,8 +14,9 @@ import {
   Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams } from 'expo-router';
-import { colors } from '@/styles/commonStyles';
+import { useLocalSearchParams, Stack } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors, typography, spacing, borderRadius, shadows } from '@/styles/commonStyles';
 import { IconSymbol } from '@/components/IconSymbol';
 import { StreamdownRN } from 'streamdown-rn';
 import Constants from 'expo-constants';
@@ -99,7 +100,6 @@ export default function ChatScreen() {
       console.log(`Loaded ${existingMessages.length} messages from server`);
 
       if (existingMessages.length === 0) {
-        // New conversation – show a contextual welcome message from the AI
         const welcomeMessage: Message = {
           id: 'welcome',
           role: 'assistant',
@@ -112,7 +112,6 @@ export default function ChatScreen() {
       }
     } catch (err) {
       console.error('Failed to load messages:', err);
-      // Show a welcome message even if loading fails
       const welcomeMessage: Message = {
         id: 'welcome',
         role: 'assistant',
@@ -164,7 +163,6 @@ export default function ChatScreen() {
     } catch (err) {
       console.error('Failed to send message:', err);
       showError('Could not get a response. Please check your connection and try again.');
-      // Remove the optimistically added user message on failure
       setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
       setInputText(messageText);
     } finally {
@@ -177,120 +175,178 @@ export default function ChatScreen() {
 
   if (initialLoading) {
     return (
-      <View style={[styles.container, styles.centered, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.primary} />
-        <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
-          Preparing your preview...
-        </Text>
-      </View>
+      <>
+        <Stack.Screen
+          options={{
+            headerShown: true,
+            title: country || 'Chat',
+            headerBackTitle: 'Back',
+          }}
+        />
+        <View style={[styles.container, styles.centered, { backgroundColor: theme.background }]}>
+          <LinearGradient
+            colors={[theme.gradientStart, theme.gradientEnd]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.loadingIcon}
+          >
+            <IconSymbol
+              ios_icon_name="globe"
+              android_material_icon_name="public"
+              size={32}
+              color="#FFFFFF"
+            />
+          </LinearGradient>
+          <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: spacing.md }} />
+          <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
+            Preparing your preview...
+          </Text>
+        </View>
+      </>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['bottom']}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-      >
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.messagesContainer}
-          contentContainerStyle={styles.messagesContent}
-          keyboardShouldPersistTaps="handled"
-          onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+    <>
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          title: country || 'Chat',
+          headerBackTitle: 'Back',
+        }}
+      />
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['bottom']}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardView}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
-          {messages.map((message) => {
-            const isUser = message.role === 'user';
-            return (
-              <View
-                key={message.id}
-                style={[
-                  styles.messageBubble,
-                  isUser ? styles.userBubble : styles.assistantBubble,
-                  {
-                    backgroundColor: isUser ? theme.primary : theme.surface,
-                  },
-                ]}
-              >
-                {isUser ? (
-                  <Text style={[styles.messageText, { color: '#FFFFFF' }]}>
-                    {message.content}
-                  </Text>
-                ) : (
-                  <StreamdownRN theme={colorScheme === 'dark' ? 'dark' : 'light'}>
-                    {message.content}
-                  </StreamdownRN>
-                )}
-              </View>
-            );
-          })}
-          {loading && (
-            <View style={[styles.messageBubble, styles.assistantBubble, { backgroundColor: theme.surface }]}>
-              <ActivityIndicator size="small" color={theme.primary} />
-            </View>
-          )}
-        </ScrollView>
-
-        <View style={[styles.inputContainer, { backgroundColor: theme.background, borderTopColor: theme.border }]}>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.inputBackground,
-                color: theme.text,
-                borderColor: theme.border,
-              },
-            ]}
-            placeholder="Ask about daily life..."
-            placeholderTextColor={theme.textSecondary}
-            value={inputText}
-            onChangeText={setInputText}
-            multiline
-            maxLength={500}
-            editable={!loading}
-          />
-          <TouchableOpacity
-            style={[
-              styles.sendButton,
-              {
-                backgroundColor: inputText.trim() && !loading ? theme.primary : theme.border,
-              },
-            ]}
-            onPress={handleSend}
-            disabled={!inputText.trim() || loading}
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.messagesContainer}
+            contentContainerStyle={styles.messagesContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
           >
-            <IconSymbol
-              ios_icon_name="arrow.up"
-              android_material_icon_name="send"
-              size={20}
-              color="#FFFFFF"
-            />
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
+            {messages.map((message) => {
+              const isUser = message.role === 'user';
+              return (
+                <View
+                  key={message.id}
+                  style={[
+                    styles.messageBubble,
+                    isUser ? styles.userBubble : styles.assistantBubble,
+                  ]}
+                >
+                  {isUser ? (
+                    <LinearGradient
+                      colors={[theme.gradientStart, theme.gradientEnd]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={styles.userBubbleGradient}
+                    >
+                      <Text style={styles.messageText}>
+                        {message.content}
+                      </Text>
+                    </LinearGradient>
+                  ) : (
+                    <View style={[styles.assistantBubbleContent, { backgroundColor: theme.surface }, shadows.small]}>
+                      <StreamdownRN theme={colorScheme === 'dark' ? 'dark' : 'light'}>
+                        {message.content}
+                      </StreamdownRN>
+                    </View>
+                  )}
+                </View>
+              );
+            })}
+            {loading && (
+              <View style={[styles.messageBubble, styles.assistantBubble]}>
+                <View style={[styles.assistantBubbleContent, { backgroundColor: theme.surface }, shadows.small]}>
+                  <View style={styles.typingIndicator}>
+                    <View style={[styles.typingDot, { backgroundColor: theme.primary }]} />
+                    <View style={[styles.typingDot, { backgroundColor: theme.primary }]} />
+                    <View style={[styles.typingDot, { backgroundColor: theme.primary }]} />
+                  </View>
+                </View>
+              </View>
+            )}
+          </ScrollView>
 
-      {/* Error Modal */}
-      <Modal
-        visible={errorVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setErrorVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalBox, { backgroundColor: theme.surface }]}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>Something went wrong</Text>
-            <Text style={[styles.modalMessage, { color: theme.textSecondary }]}>{errorMessage}</Text>
+          <View style={[styles.inputContainer, { backgroundColor: theme.background, borderTopColor: theme.border }]}>
+            <View style={[styles.inputWrapper, { backgroundColor: theme.inputBackground, borderColor: theme.inputBorder }]}>
+              <TextInput
+                style={[styles.input, { color: theme.text }]}
+                placeholder="Ask about daily life..."
+                placeholderTextColor={theme.textTertiary}
+                value={inputText}
+                onChangeText={setInputText}
+                multiline
+                maxLength={500}
+                editable={!loading}
+              />
+            </View>
             <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: theme.primary }]}
-              onPress={() => setErrorVisible(false)}
+              style={styles.sendButtonWrapper}
+              onPress={handleSend}
+              disabled={!inputText.trim() || loading}
+              activeOpacity={0.8}
             >
-              <Text style={styles.modalButtonText}>OK</Text>
+              <LinearGradient
+                colors={inputText.trim() && !loading ? [theme.gradientStart, theme.gradientEnd] : [theme.border, theme.border]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.sendButton}
+              >
+                <IconSymbol
+                  ios_icon_name="arrow.up"
+                  android_material_icon_name="send"
+                  size={20}
+                  color="#FFFFFF"
+                />
+              </LinearGradient>
             </TouchableOpacity>
           </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+        </KeyboardAvoidingView>
+
+        {/* Error Modal */}
+        <Modal
+          visible={errorVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setErrorVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalBox, { backgroundColor: theme.surface }, shadows.large]}>
+              <View style={[styles.modalIconContainer, { backgroundColor: theme.accentLight }]}>
+                <IconSymbol
+                  ios_icon_name="exclamationmark.triangle"
+                  android_material_icon_name="warning"
+                  size={32}
+                  color={theme.accent}
+                />
+              </View>
+              <Text style={[styles.modalTitle, { color: theme.text }]}>Something went wrong</Text>
+              <Text style={[styles.modalMessage, { color: theme.textSecondary }]}>{errorMessage}</Text>
+              <TouchableOpacity
+                style={styles.modalButtonWrapper}
+                onPress={() => setErrorVisible(false)}
+                activeOpacity={0.9}
+              >
+                <LinearGradient
+                  colors={[theme.gradientStart, theme.gradientEnd]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.modalButton}
+                >
+                  <Text style={styles.modalButtonText}>Got it</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </SafeAreaView>
+    </>
   );
 }
 
@@ -302,9 +358,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: borderRadius.lg,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   loadingText: {
-    marginTop: 16,
-    fontSize: 16,
+    marginTop: spacing.md,
+    fontSize: typography.body,
+    fontWeight: typography.medium,
   },
   keyboardView: {
     flex: 1,
@@ -313,83 +377,120 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   messagesContent: {
-    padding: 16,
-    paddingBottom: 8,
+    padding: spacing.md,
+    paddingBottom: spacing.sm,
   },
   messageBubble: {
     maxWidth: '80%',
-    padding: 12,
-    borderRadius: 16,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   userBubble: {
     alignSelf: 'flex-end',
-    borderBottomRightRadius: 4,
   },
   assistantBubble: {
     alignSelf: 'flex-start',
-    borderBottomLeftRadius: 4,
+  },
+  userBubbleGradient: {
+    padding: spacing.md,
+    borderRadius: borderRadius.lg,
+    borderBottomRightRadius: spacing.xs,
+  },
+  assistantBubbleContent: {
+    padding: spacing.md,
+    borderRadius: borderRadius.lg,
+    borderBottomLeftRadius: spacing.xs,
   },
   messageText: {
-    fontSize: 16,
-    lineHeight: 22,
+    fontSize: typography.body,
+    lineHeight: 24,
+    color: '#FFFFFF',
+  },
+  typingIndicator: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    paddingVertical: spacing.xs,
+  },
+  typingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    opacity: 0.6,
   },
   inputContainer: {
     flexDirection: 'row',
-    padding: 12,
-    gap: 8,
+    padding: spacing.md,
+    gap: spacing.sm,
     borderTopWidth: 1,
   },
-  input: {
+  inputWrapper: {
     flex: 1,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    fontSize: 16,
-    maxHeight: 100,
+    borderRadius: borderRadius.full,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderWidth: 1,
   },
+  input: {
+    fontSize: typography.body,
+    maxHeight: 100,
+  },
+  sendButtonWrapper: {
+    borderRadius: borderRadius.full,
+    overflow: 'hidden',
+  },
   sendButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: borderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: colors.light.overlay,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: spacing.lg,
   },
   modalBox: {
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
     width: '100%',
     maxWidth: 360,
     alignItems: 'center',
-    gap: 12,
+  },
+  modalIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: borderRadius.full,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.md,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: typography.h4,
+    fontWeight: typography.bold,
     textAlign: 'center',
+    marginBottom: spacing.sm,
   },
   modalMessage: {
-    fontSize: 15,
+    fontSize: typography.body,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24,
+    marginBottom: spacing.lg,
+  },
+  modalButtonWrapper: {
+    width: '100%',
+    borderRadius: borderRadius.md,
+    overflow: 'hidden',
   },
   modalButton: {
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    marginTop: 8,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    alignItems: 'center',
   },
   modalButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.body,
+    fontWeight: typography.bold,
   },
 });

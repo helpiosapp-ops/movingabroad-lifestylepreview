@@ -1,91 +1,253 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView, Platform } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { IconSymbol } from "@/components/IconSymbol";
-import { GlassView } from "expo-glass-effect";
-import { useTheme } from "@react-navigation/native";
+
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Platform,
+  useColorScheme,
+  TouchableOpacity,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { IconSymbol } from '@/components/IconSymbol';
+import { colors, typography, spacing, borderRadius, shadows } from '@/styles/commonStyles';
 
 export default function ProfileScreen() {
-  const theme = useTheme();
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === 'dark' ? colors.dark : colors.light;
+
+  const infoItems = [
+    {
+      icon: 'info',
+      title: 'About This App',
+      description: 'Get realistic previews of daily life in different countries. No hype, just honest insights.',
+    },
+    {
+      icon: 'lock',
+      title: 'Privacy First',
+      description: 'No accounts, no tracking, no data collection. Your conversations stay private.',
+    },
+    {
+      icon: 'payment',
+      title: 'Pay Once, Use Forever',
+      description: 'No subscriptions, no recurring payments. One purchase, lifetime access.',
+    },
+  ];
+
+  const features = [
+    'Realistic lifestyle previews',
+    'Daily life insights',
+    'Cultural expectations',
+    'Work-life balance info',
+    'Common surprises',
+    'Honest assessments',
+  ];
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView
-        style={styles.container}
-        contentContainerStyle={[
-          styles.contentContainer,
-          Platform.OS !== 'ios' && styles.contentContainerWithTabBar
-        ]}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        <GlassView style={[
-          styles.profileHeader,
-          Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }
-        ]} glassEffectStyle="regular">
-          <IconSymbol ios_icon_name="person.circle.fill" android_material_icon_name="person" size={80} color={theme.colors.primary} />
-          <Text style={[styles.name, { color: theme.colors.text }]}>John Doe</Text>
-          <Text style={[styles.email, { color: theme.dark ? '#98989D' : '#666' }]}>john.doe@example.com</Text>
-        </GlassView>
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          <LinearGradient
+            colors={[theme.gradientStart, theme.gradientEnd]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.iconContainer}
+          >
+            <IconSymbol
+              ios_icon_name="globe"
+              android_material_icon_name="public"
+              size={48}
+              color="#FFFFFF"
+            />
+          </LinearGradient>
+          <Text style={[styles.appName, { color: theme.text }]}>
+            Moving Abroad
+          </Text>
+          <Text style={[styles.tagline, { color: theme.primary }]}>
+            Lifestyle Preview
+          </Text>
+        </View>
 
-        <GlassView style={[
-          styles.section,
-          Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }
-        ]} glassEffectStyle="regular">
-          <View style={styles.infoRow}>
-            <IconSymbol ios_icon_name="phone.fill" android_material_icon_name="phone" size={20} color={theme.dark ? '#98989D' : '#666'} />
-            <Text style={[styles.infoText, { color: theme.colors.text }]}>+1 (555) 123-4567</Text>
+        {/* Info Cards */}
+        <View style={styles.section}>
+          {infoItems.map((item, index) => (
+            <View
+              key={index}
+              style={[
+                styles.infoCard,
+                { backgroundColor: theme.surface },
+                shadows.small,
+              ]}
+            >
+              <View style={[styles.infoIconContainer, { backgroundColor: theme.primaryLight }]}>
+                <IconSymbol
+                  ios_icon_name={item.icon}
+                  android_material_icon_name={item.icon}
+                  size={24}
+                  color={theme.primary}
+                />
+              </View>
+              <View style={styles.infoContent}>
+                <Text style={[styles.infoTitle, { color: theme.text }]}>
+                  {item.title}
+                </Text>
+                <Text style={[styles.infoDescription, { color: theme.textSecondary }]}>
+                  {item.description}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {/* Features Section */}
+        <View style={[styles.featuresCard, { backgroundColor: theme.surface }, shadows.medium]}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            What You Get
+          </Text>
+          <View style={styles.featuresGrid}>
+            {features.map((feature, index) => (
+              <View key={index} style={styles.featureItem}>
+                <View style={[styles.featureDot, { backgroundColor: theme.primary }]} />
+                <Text style={[styles.featureText, { color: theme.textSecondary }]}>
+                  {feature}
+                </Text>
+              </View>
+            ))}
           </View>
-          <View style={styles.infoRow}>
-            <IconSymbol ios_icon_name="location.fill" android_material_icon_name="location-on" size={20} color={theme.dark ? '#98989D' : '#666'} />
-            <Text style={[styles.infoText, { color: theme.colors.text }]}>San Francisco, CA</Text>
-          </View>
-        </GlassView>
+        </View>
+
+        {/* Disclaimer */}
+        <View style={[styles.disclaimerCard, { backgroundColor: theme.surfaceElevated }]}>
+          <IconSymbol
+            ios_icon_name="exclamationmark.triangle"
+            android_material_icon_name="warning"
+            size={20}
+            color={theme.textTertiary}
+          />
+          <Text style={[styles.disclaimerText, { color: theme.textSecondary }]}>
+            This app provides general lifestyle information only. It does not offer legal, immigration, tax, or financial advice.
+          </Text>
+        </View>
+
+        {/* Version */}
+        <Text style={[styles.version, { color: theme.textTertiary }]}>
+          Version 1.0.0
+        </Text>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    // backgroundColor handled dynamically
-  },
   container: {
     flex: 1,
   },
-  contentContainer: {
-    padding: 20,
+  scrollContent: {
+    padding: spacing.lg,
+    paddingTop: Platform.OS === 'android' ? 48 : spacing.lg,
+    paddingBottom: 100,
   },
-  contentContainerWithTabBar: {
-    paddingBottom: 100, // Extra padding for floating tab bar
-  },
-  profileHeader: {
+  heroSection: {
     alignItems: 'center',
-    borderRadius: 12,
-    padding: 32,
-    marginBottom: 16,
-    gap: 12,
+    marginBottom: spacing.xl,
   },
-  name: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    // color handled dynamically
+  iconContainer: {
+    width: 96,
+    height: 96,
+    borderRadius: borderRadius.xl,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.md,
   },
-  email: {
-    fontSize: 16,
-    // color handled dynamically
+  appName: {
+    fontSize: typography.h2,
+    fontWeight: typography.bold,
+    marginTop: spacing.sm,
+    letterSpacing: -0.5,
+  },
+  tagline: {
+    fontSize: typography.h4,
+    fontWeight: typography.semibold,
+    marginTop: spacing.xs,
+    letterSpacing: 0.5,
   },
   section: {
-    borderRadius: 12,
-    padding: 20,
-    gap: 12,
+    marginBottom: spacing.lg,
   },
-  infoRow: {
+  infoCard: {
+    flexDirection: 'row',
+    padding: spacing.md,
+    borderRadius: borderRadius.lg,
+    marginBottom: spacing.md,
+    gap: spacing.md,
+  },
+  infoIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: borderRadius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  infoContent: {
+    flex: 1,
+  },
+  infoTitle: {
+    fontSize: typography.body,
+    fontWeight: typography.semibold,
+    marginBottom: spacing.xs,
+  },
+  infoDescription: {
+    fontSize: typography.bodySmall,
+    lineHeight: 20,
+  },
+  featuresCard: {
+    padding: spacing.lg,
+    borderRadius: borderRadius.xl,
+    marginBottom: spacing.lg,
+  },
+  sectionTitle: {
+    fontSize: typography.h4,
+    fontWeight: typography.bold,
+    marginBottom: spacing.md,
+  },
+  featuresGrid: {
+    gap: spacing.sm,
+  },
+  featureItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: spacing.sm,
   },
-  infoText: {
-    fontSize: 16,
-    // color handled dynamically
+  featureDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  featureText: {
+    fontSize: typography.body,
+    lineHeight: 24,
+  },
+  disclaimerCard: {
+    flexDirection: 'row',
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    gap: spacing.sm,
+    alignItems: 'flex-start',
+    marginBottom: spacing.lg,
+  },
+  disclaimerText: {
+    flex: 1,
+    fontSize: typography.caption,
+    lineHeight: 18,
+  },
+  version: {
+    fontSize: typography.caption,
+    textAlign: 'center',
   },
 });

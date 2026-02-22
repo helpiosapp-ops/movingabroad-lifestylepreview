@@ -15,7 +15,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { colors } from '@/styles/commonStyles';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors, typography, spacing, borderRadius, shadows } from '@/styles/commonStyles';
 import { IconSymbol } from '@/components/IconSymbol';
 import Constants from 'expo-constants';
 
@@ -96,6 +97,8 @@ export default function HomeScreen() {
     setCountry(selectedCountry);
   };
 
+  const isButtonEnabled = country.trim() && !loading;
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <KeyboardAvoidingView
@@ -105,18 +108,28 @@ export default function HomeScreen() {
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <View style={styles.header}>
-            <IconSymbol
-              ios_icon_name="globe"
-              android_material_icon_name="public"
-              size={48}
-              color={theme.primary}
-            />
+          {/* Hero Section with Gradient */}
+          <View style={styles.heroSection}>
+            <LinearGradient
+              colors={[theme.gradientStart, theme.gradientEnd]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.gradientIcon}
+            >
+              <IconSymbol
+                ios_icon_name="globe"
+                android_material_icon_name="public"
+                size={40}
+                color="#FFFFFF"
+              />
+            </LinearGradient>
+            
             <Text style={[styles.title, { color: theme.text }]}>
               Moving Abroad
             </Text>
-            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+            <Text style={[styles.subtitle, { color: theme.primary }]}>
               Lifestyle Preview
             </Text>
             <Text style={[styles.description, { color: theme.textSecondary }]}>
@@ -124,7 +137,8 @@ export default function HomeScreen() {
             </Text>
           </View>
 
-          <View style={styles.form}>
+          {/* Form Card */}
+          <View style={[styles.formCard, { backgroundColor: theme.surface }, shadows.medium]}>
             <Text style={[styles.label, { color: theme.text }]}>
               Which country are you considering?
             </Text>
@@ -134,11 +148,11 @@ export default function HomeScreen() {
                 {
                   backgroundColor: theme.inputBackground,
                   color: theme.text,
-                  borderColor: theme.border,
+                  borderColor: theme.inputBorder,
                 },
               ]}
               placeholder="e.g., Portugal, Japan, Germany"
-              placeholderTextColor={theme.textSecondary}
+              placeholderTextColor={theme.textTertiary}
               value={country}
               onChangeText={setCountry}
               autoCapitalize="words"
@@ -146,36 +160,43 @@ export default function HomeScreen() {
 
             <View style={styles.popularContainer}>
               <Text style={[styles.popularLabel, { color: theme.textSecondary }]}>
-                Popular destinations:
+                Popular destinations
               </Text>
               <View style={styles.chipsContainer}>
-                {popularCountries.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.chip,
-                      {
-                        backgroundColor: country === item ? theme.primary : theme.surface,
-                        borderColor: theme.border,
-                      },
-                    ]}
-                    onPress={() => handleCountrySelect(item)}
-                  >
-                    <Text
+                {popularCountries.map((item, index) => {
+                  const isSelected = country === item;
+                  return (
+                    <TouchableOpacity
+                      key={index}
                       style={[
-                        styles.chipText,
-                        { color: country === item ? '#FFFFFF' : theme.text },
+                        styles.chip,
+                        {
+                          backgroundColor: isSelected ? theme.primary : theme.inputBackground,
+                          borderColor: isSelected ? theme.primary : theme.border,
+                        },
                       ]}
+                      onPress={() => handleCountrySelect(item)}
+                      activeOpacity={0.7}
                     >
-                      {item}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                      <Text
+                        style={[
+                          styles.chipText,
+                          { color: isSelected ? '#FFFFFF' : theme.text },
+                        ]}
+                      >
+                        {item}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             </View>
 
             <Text style={[styles.label, { color: theme.text }]}>
-              Any specific topic? (optional)
+              Any specific topic?
+            </Text>
+            <Text style={[styles.optionalLabel, { color: theme.textTertiary }]}>
+              Optional
             </Text>
             <TextInput
               style={[
@@ -183,38 +204,58 @@ export default function HomeScreen() {
                 {
                   backgroundColor: theme.inputBackground,
                   color: theme.text,
-                  borderColor: theme.border,
+                  borderColor: theme.inputBorder,
                 },
               ]}
               placeholder="e.g., work culture, social life, weather"
-              placeholderTextColor={theme.textSecondary}
+              placeholderTextColor={theme.textTertiary}
               value={topic}
               onChangeText={setTopic}
               autoCapitalize="sentences"
             />
 
             <TouchableOpacity
-              style={[
-                styles.button,
-                {
-                  backgroundColor: country.trim() && !loading ? theme.primary : theme.border,
-                },
-              ]}
+              style={[styles.buttonWrapper]}
               onPress={handleStartConversation}
-              disabled={!country.trim() || loading}
+              disabled={!isButtonEnabled}
+              activeOpacity={0.9}
             >
-              {loading ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
-                <Text style={styles.buttonText}>Start Preview</Text>
-              )}
+              <LinearGradient
+                colors={isButtonEnabled ? [theme.gradientStart, theme.gradientEnd] : [theme.border, theme.border]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.button}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Text style={styles.buttonText}>Start Preview</Text>
+                    <IconSymbol
+                      ios_icon_name="arrow.right"
+                      android_material_icon_name="arrow-forward"
+                      size={20}
+                      color="#FFFFFF"
+                    />
+                  </>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
           </View>
 
+          {/* Footer */}
           <View style={styles.footer}>
-            <Text style={[styles.footerText, { color: theme.textSecondary }]}>
-              This app provides general lifestyle information only. It does not offer legal, immigration, tax, or financial advice.
-            </Text>
+            <View style={[styles.disclaimerCard, { backgroundColor: theme.surfaceElevated }]}>
+              <IconSymbol
+                ios_icon_name="info.circle"
+                android_material_icon_name="info"
+                size={20}
+                color={theme.textTertiary}
+              />
+              <Text style={[styles.footerText, { color: theme.textSecondary }]}>
+                This app provides general lifestyle information only. It does not offer legal, immigration, tax, or financial advice.
+              </Text>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -227,14 +268,30 @@ export default function HomeScreen() {
         onRequestClose={() => setErrorVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalBox, { backgroundColor: theme.surface }]}>
+          <View style={[styles.modalBox, { backgroundColor: theme.surface }, shadows.large]}>
+            <View style={[styles.modalIconContainer, { backgroundColor: theme.accentLight }]}>
+              <IconSymbol
+                ios_icon_name="exclamationmark.triangle"
+                android_material_icon_name="warning"
+                size={32}
+                color={theme.accent}
+              />
+            </View>
             <Text style={[styles.modalTitle, { color: theme.text }]}>Something went wrong</Text>
             <Text style={[styles.modalMessage, { color: theme.textSecondary }]}>{errorMessage}</Text>
             <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: theme.primary }]}
+              style={[styles.modalButtonWrapper]}
               onPress={() => setErrorVisible(false)}
+              activeOpacity={0.9}
             >
-              <Text style={styles.modalButtonText}>OK</Text>
+              <LinearGradient
+                colors={[theme.gradientStart, theme.gradientEnd]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.modalButton}
+              >
+                <Text style={styles.modalButtonText}>Got it</Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>
@@ -251,124 +308,170 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 24,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
-  header: {
+  heroSection: {
     alignItems: 'center',
-    marginBottom: 32,
-    marginTop: 16,
+    marginBottom: spacing.xl,
+    marginTop: spacing.md,
+  },
+  gradientIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: borderRadius.xl,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.md,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
-    marginTop: 16,
+    fontSize: typography.h1,
+    fontWeight: typography.bold,
+    marginTop: spacing.sm,
     textAlign: 'center',
+    letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 18,
-    fontWeight: '500',
-    marginTop: 4,
+    fontSize: typography.h4,
+    fontWeight: typography.semibold,
+    marginTop: spacing.xs,
     textAlign: 'center',
+    letterSpacing: 0.5,
   },
   description: {
-    fontSize: 15,
-    marginTop: 16,
+    fontSize: typography.body,
+    marginTop: spacing.md,
     textAlign: 'center',
-    lineHeight: 22,
-    paddingHorizontal: 16,
+    lineHeight: 24,
+    paddingHorizontal: spacing.md,
   },
-  form: {
-    marginBottom: 24,
+  formCard: {
+    borderRadius: borderRadius.xl,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
   },
   label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-    marginTop: 16,
+    fontSize: typography.body,
+    fontWeight: typography.semibold,
+    marginBottom: spacing.xs,
+    marginTop: spacing.md,
+  },
+  optionalLabel: {
+    fontSize: typography.caption,
+    marginBottom: spacing.sm,
+    fontWeight: typography.medium,
   },
   input: {
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    fontSize: typography.body,
     borderWidth: 1,
   },
   popularContainer: {
-    marginTop: 16,
+    marginTop: spacing.lg,
   },
   popularLabel: {
-    fontSize: 14,
-    marginBottom: 8,
+    fontSize: typography.bodySmall,
+    marginBottom: spacing.sm,
+    fontWeight: typography.medium,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   chipsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: spacing.sm,
   },
   chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.full,
+    borderWidth: 1.5,
   },
   chipText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: typography.bodySmall,
+    fontWeight: typography.semibold,
+  },
+  buttonWrapper: {
+    marginTop: spacing.xl,
+    borderRadius: borderRadius.md,
+    overflow: 'hidden',
   },
   button: {
-    borderRadius: 12,
-    padding: 18,
+    flexDirection: 'row',
+    padding: spacing.md + 2,
     alignItems: 'center',
-    marginTop: 24,
+    justifyContent: 'center',
+    gap: spacing.sm,
   },
   buttonText: {
     color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: typography.body + 1,
+    fontWeight: typography.bold,
+    letterSpacing: 0.3,
   },
   footer: {
-    marginTop: 24,
-    paddingTop: 24,
-    alignItems: 'center',
+    marginTop: spacing.md,
+  },
+  disclaimerCard: {
+    flexDirection: 'row',
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    gap: spacing.sm,
+    alignItems: 'flex-start',
   },
   footerText: {
-    fontSize: 13,
-    textAlign: 'center',
+    flex: 1,
+    fontSize: typography.caption,
     lineHeight: 18,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: colors.light.overlay,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: spacing.lg,
   },
   modalBox: {
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
     width: '100%',
     maxWidth: 360,
     alignItems: 'center',
-    gap: 12,
+  },
+  modalIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: borderRadius.full,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.md,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: typography.h4,
+    fontWeight: typography.bold,
     textAlign: 'center',
+    marginBottom: spacing.sm,
   },
   modalMessage: {
-    fontSize: 15,
+    fontSize: typography.body,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24,
+    marginBottom: spacing.lg,
+  },
+  modalButtonWrapper: {
+    width: '100%',
+    borderRadius: borderRadius.md,
+    overflow: 'hidden',
   },
   modalButton: {
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    marginTop: 8,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    alignItems: 'center',
   },
   modalButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.body,
+    fontWeight: typography.bold,
   },
 });
