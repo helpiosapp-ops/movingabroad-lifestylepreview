@@ -12,6 +12,7 @@ import {
   Platform,
   ActivityIndicator,
   Modal,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, Stack } from 'expo-router';
@@ -24,6 +25,9 @@ import Constants from 'expo-constants';
 const BACKEND_URL: string =
   (Constants.expoConfig?.extra?.backendUrl as string) ||
   'https://zgv9my84veuete5vdsjd6vq5uhcu7ah3.app.specular.dev';
+
+const { width } = Dimensions.get('window');
+const isTablet = width >= 768;
 
 async function fetchMessages(conversationId: string): Promise<Message[]> {
   console.log(`[API] GET /api/conversations/${conversationId}/messages`);
@@ -284,6 +288,8 @@ export default function ChatScreen() {
                 multiline
                 maxLength={500}
                 editable={!loading}
+                textAlignVertical="center"
+                scrollEnabled={false}
               />
             </View>
             <TouchableOpacity
@@ -381,7 +387,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.sm,
   },
   messageBubble: {
-    maxWidth: '80%',
+    maxWidth: isTablet ? '70%' : '80%',
     marginBottom: spacing.md,
   },
   userBubble: {
@@ -421,25 +427,34 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.sm,
     borderTopWidth: 1,
+    minHeight: isTablet ? 72 : 64,
+    maxHeight: isTablet ? 120 : 100,
   },
   inputWrapper: {
     flex: 1,
     borderRadius: borderRadius.full,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingVertical: isTablet ? spacing.md : spacing.sm,
     borderWidth: 1,
+    justifyContent: 'center',
+    minHeight: isTablet ? 56 : 44,
+    maxHeight: isTablet ? 104 : 84,
   },
   input: {
     fontSize: typography.body,
-    maxHeight: 100,
+    minHeight: isTablet ? 24 : 20,
+    maxHeight: isTablet ? 80 : 60,
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   sendButtonWrapper: {
     borderRadius: borderRadius.full,
     overflow: 'hidden',
+    alignSelf: 'flex-end',
   },
   sendButton: {
-    width: 44,
-    height: 44,
+    width: isTablet ? 56 : 44,
+    height: isTablet ? 56 : 44,
     borderRadius: borderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
