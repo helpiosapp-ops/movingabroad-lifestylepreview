@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "Natively App",
-    "slug": "Natively App",
+    "name": "you-are-an-ai-assist",
+    "slug": "you-are-an-ai-assist",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/app-icon-hgx.png",
+    "icon": "./assets/images/app-icon-ydu.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/app-icon-hgx.png",
+      "image": "./assets/images/app-icon-ydu.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
@@ -21,7 +21,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/app-icon-hgx.png",
+        "foregroundImage": "./assets/images/app-icon-ydu.png",
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
@@ -36,7 +36,7 @@
       "expo-router",
       "expo-web-browser"
     ],
-    "scheme": "Natively App",
+    "scheme": "you-are-an-ai-assist",
     "experiments": {
       "typedRoutes": true
     },
