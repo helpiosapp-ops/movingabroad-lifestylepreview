@@ -26,7 +26,7 @@ const BACKEND_URL: string =
   (Constants.expoConfig?.extra?.backendUrl as string) ||
   'https://zgv9my84veuete5vdsjd6vq5uhcu7ah3.app.specular.dev';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 const isTablet = width >= 768;
 
 async function fetchMessages(conversationId: string): Promise<Message[]> {
@@ -86,6 +86,7 @@ export default function ChatScreen() {
   const [errorMessage, setErrorMessage] = useState('');
 
   const showError = (msg: string) => {
+    console.log('Showing error modal:', msg);
     setErrorMessage(msg);
     setErrorVisible(true);
   };
@@ -164,6 +165,10 @@ export default function ChatScreen() {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+      
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 200);
     } catch (err) {
       console.error('Failed to send message:', err);
       showError('Could not get a response. Please check your connection and try again.');
@@ -171,9 +176,6 @@ export default function ChatScreen() {
       setInputText(messageText);
     } finally {
       setLoading(false);
-      setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-      }, 100);
     }
   };
 
@@ -231,13 +233,19 @@ export default function ChatScreen() {
             contentContainerStyle={styles.messagesContent}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
-            onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+            onContentSizeChange={() => {
+              setTimeout(() => {
+                scrollViewRef.current?.scrollToEnd({ animated: true });
+              }, 100);
+            }}
           >
-            {messages.map((message) => {
+            {messages.map((message, index) => {
               const isUser = message.role === 'user';
+              const messageContent = message.content;
+              
               return (
                 <View
-                  key={message.id}
+                  key={`${message.id}-${index}`}
                   style={[
                     styles.messageBubble,
                     isUser ? styles.userBubble : styles.assistantBubble,
@@ -250,15 +258,17 @@ export default function ChatScreen() {
                       end={{ x: 1, y: 0 }}
                       style={styles.userBubbleGradient}
                     >
-                      <Text style={styles.messageText}>
-                        {message.content}
+                      <Text style={styles.userMessageText}>
+                        {messageContent}
                       </Text>
                     </LinearGradient>
                   ) : (
                     <View style={[styles.assistantBubbleContent, { backgroundColor: theme.surface }, shadows.small]}>
-                      <StreamdownRN theme={colorScheme === 'dark' ? 'dark' : 'light'}>
-                        {message.content}
-                      </StreamdownRN>
+                      <View style={styles.streamdownWrapper}>
+                        <StreamdownRN theme={colorScheme === 'dark' ? 'dark' : 'light'}>
+                          {messageContent}
+                        </StreamdownRN>
+                      </View>
                     </View>
                   )}
                 </View>
@@ -315,7 +325,6 @@ export default function ChatScreen() {
           </View>
         </KeyboardAvoidingView>
 
-        {/* Error Modal */}
         <Modal
           visible={errorVisible}
           transparent
@@ -384,10 +393,10 @@ const styles = StyleSheet.create({
   },
   messagesContent: {
     padding: spacing.md,
-    paddingBottom: spacing.xl * 2,
+    paddingBottom: spacing.xl * 4,
   },
   messageBubble: {
-    maxWidth: isTablet ? '70%' : '80%',
+    maxWidth: isTablet ? '70%' : '85%',
     marginBottom: spacing.md,
   },
   userBubble: {
@@ -398,18 +407,25 @@ const styles = StyleSheet.create({
   },
   userBubbleGradient: {
     padding: spacing.md,
+    paddingHorizontal: spacing.lg,
     borderRadius: borderRadius.lg,
     borderBottomRightRadius: spacing.xs,
   },
-  assistantBubbleContent: {
-    padding: spacing.md,
-    borderRadius: borderRadius.lg,
-    borderBottomLeftRadius: spacing.xs,
-  },
-  messageText: {
+  userMessageText: {
     fontSize: typography.body,
     lineHeight: 24,
     color: '#FFFFFF',
+    fontWeight: typography.regular,
+  },
+  assistantBubbleContent: {
+    padding: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.lg,
+    borderBottomLeftRadius: spacing.xs,
+    minWidth: 100,
+  },
+  streamdownWrapper: {
+    width: '100%',
   },
   typingIndicator: {
     flexDirection: 'row',
